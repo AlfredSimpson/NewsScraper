@@ -23,7 +23,12 @@ mostRecent = []
 noNews = []
 
 sources = ['https://www.wired.com/feed/category/security/latest/rss', 'https://threatpost.com/feed/',
-           'http://feeds.feedburner.com/TheHackersNews?format=xml', 'https://krebsonsecurity.com/feed/', 'https://www.darkreading.com/rss.xml']
+            'http://feeds.feedburner.com/TheHackersNews?format=xml', 'https://krebsonsecurity.com/feed/',
+            'https://www.darkreading.com/rss.xml', 'https://www.cisa.gov/uscert/ncas/current-activity.xml',
+            'https://www.cisa.gov/uscert/ncas/bulletins.xml']
+"""
+Important Note: CISA uses more html in their description, making this... less pretty. For this reason CISA only prints "Click for more information" as it's snippet.
+"""
 
 numSources = len(sources)
 
@@ -35,7 +40,9 @@ sourceDict = {
     1   :   "ThreatPost",
     2   :   "The Hackers' News",
     3   :   "Krebs on Security",
-    4   :   "Dark Reading"
+    4   :   "Dark Reading",
+    5   :   "CISA - Current Activity",
+    6   :   "CISA - Vulnerability Bulletins"
     }
 
 
@@ -64,17 +71,23 @@ def checkTheNews():
         url = requests.get(source)
         soup = BeautifulSoup(url.content, 'xml')
         articles = soup.find_all('item')
-        
-        title = articles[0].title.text
-        snippet = articles[0].description.text
-        link = articles[0].link.text
-        output = (f"Title: {title}\n\nSnippet: {snippet}\n\nLink: {link}\n\n--------\n\n")
-
+        if (count < 5):
+            title = articles[0].title.text
+            snippet = articles[0].description.get_text()
+            link = articles[0].link.text
+            output = (f"Title: {title}\n\nSnippet: {snippet}\n\nLink: {link}\n\n--------\n\n")
+        else:
+            title = articles[0].title.text
+            snippet = "Click for more information."
+            link = articles[0].link.text
+            output = (f"Title: {title}\n\nSnippet: {snippet}\n\nLink: {link}\n\n--------\n\n")
         checkPosted(output, count, articles[0])
         count += 1
+
     if len(noNews) > 0:
         print("\nThe following source(s) had nothing new to report: \n")
         print(*noNews, sep=", ", end="\n\n")
+
 
 #setTimer is currently not being used. It's intent is to simply take the input from a user and translate it into seconds. Anticipated issue: user might not enter digits, might ctrlC, etc. Need to implement a try/except/catch/finally
 def setTimer():
@@ -85,7 +98,6 @@ while(True):
     checkTheNews()
     print("\n\nGiving time for you to read\n\n")
     noNews.clear()
-    time.sleep(5)
-    # time.sleep(1800)
+    time.sleep(1800)
 
 

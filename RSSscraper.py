@@ -1,13 +1,26 @@
 from bs4 import BeautifulSoup
-import requests
+import requests, time
 
 """
 This was built following basic instructions from Pythonology's  YouTube Video,
-'Python RSS Feed reader with BeautifulSoup'. It also utilizes the lxml modules. After watching the video and completing the basic set up, I intend to source multiple sites and feed this to the discord bot, which will post it on the server it is installed in. 
+'Python RSS Feed reader with BeautifulSoup'. It also utilizes the lxml modules. After watching the video and completing the basic set up, I implemented mulutiple sources and made significant changes to the basic program that was constructed. Ultimately this intended to be used by a discord bot, which will post it on the server it is installed in. 
+
+This program repeats every 30 minutes. If no changes to the news exist, it will not post links but currently will post a message letting you know that the source without changes had nothing to report. 
+
+Language: Python 3.10
+Date: June 15, 2022
+Author: Alfred Simpson
+
+TODO: Extra features I may implement include:
+- Adding sources
+- Automating the dictionary (either slicing from xml or getting user input)
+- Giving the user the option to set the frequency of checking
+- Allowing multiple articles
+- Checking for similar articles.
 """
-# TODO: Delete after all sources compiled - Wired,ThreatPost, The Hackers news use the same layout: title, description, pubDate (not currently used, but shows when published), and link without href attributes. As these sources seem uniform, we can use one block of code to iterate through them.
 
 mostRecent = []
+noNews = []
 
 sources = ['https://www.wired.com/feed/category/security/latest/rss', 'https://threatpost.com/feed/',
            'http://feeds.feedburner.com/TheHackersNews?format=xml', 'https://krebsonsecurity.com/feed/', 'https://www.darkreading.com/rss.xml']
@@ -17,14 +30,26 @@ numSources = len(sources)
 for i in range(numSources):
     mostRecent.append(i)
 
-def checkPosted(link, sourceNum, article):
-    if link in mostRecent:
+sourceDict = {
+    0   :   "Wired", 
+    1   :   "ThreatPost",
+    2   :   "The Hackers' News",
+    3   :   "Krebs on Security",
+    4   :   "Dark Reading"
+    }
+
+
+def checkPosted(output, sourceNum, article):
+    if output in mostRecent:
+        noNews.append(sourceDict[sourceNum])
         return
     else:
-        output = summary(article)
+        # output = summary(article)
         mostRecent[sourceNum] = output
         print(output)
 
+"""
+*** Summary is not currently used. It's purpose is for allowing quick snippets of articles and for checking multiple articles from a source ***
 def summary(article):
     title = article.title.text
     snippet = article.description.text
@@ -32,7 +57,7 @@ def summary(article):
     output = (f"Title: {title}\n\nSnippet: {snippet}\n\nLink: {link}\n\n--------\n\n")
     return output
 
-count = 0
+"""
 def checkTheNews():
     count = 0
     for source in sources:
@@ -45,8 +70,22 @@ def checkTheNews():
         link = articles[0].link.text
         output = (f"Title: {title}\n\nSnippet: {snippet}\n\nLink: {link}\n\n--------\n\n")
 
-        checkPosted(link, count, articles[0])
+        checkPosted(output, count, articles[0])
         count += 1
-checkTheNews()
-# print(*mostRecent, sep= "\n\n")
+    if len(noNews) > 0:
+        print("\nThe following source(s) had nothing new to report: \n")
+        print(*noNews, sep=", ", end="\n\n")
+
+#setTimer is currently not being used. It's intent is to simply take the input from a user and translate it into seconds. Anticipated issue: user might not enter digits, might ctrlC, etc. Need to implement a try/except/catch/finally
+def setTimer():
+    minutes = input("How many minutes should I wait between checking the news? ")
+    timer = minutes * 60
+
+while(True):
+    checkTheNews()
+    print("\n\nGiving time for you to read\n\n")
+    noNews.clear()
+    time.sleep(5)
+    # time.sleep(1800)
+
 

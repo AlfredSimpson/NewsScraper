@@ -5,7 +5,7 @@ import requests, time
 This was built following basic instructions from Pythonology's  YouTube Video,
 'Python RSS Feed reader with BeautifulSoup'. It also utilizes the lxml modules. After watching the video and completing the basic set up, I implemented mulutiple sources and made significant changes to the basic program that was constructed. Ultimately this intended to be used by a discord bot, which will post it on the server it is installed in. 
 
-This program repeats every 30 minutes. If no changes to the news exist, it will not post links but currently will post a message letting you know that the source without changes had nothing to report. 
+This program repeats every 60 minutes. If no changes to the news exist, it will not post links but currently will post a message letting you know that the source without changes had nothing to report. 
 
 Language: Python 3.10
 Date: June 15, 2022
@@ -98,6 +98,6 @@ while(True):
     checkTheNews()
     print("\n\nGiving time for you to read\n\n")
     noNews.clear()
-    time.sleep(1800)
+    time.sleep(3600)
 
 

@@ -47,6 +47,7 @@ sourceDict = {
 
 
 def checkPosted(output, sourceNum, article):
+    print("Check Posted activated. Source number = "+str(sourceNum))
     if output in mostRecent:
         noNews.append(sourceDict[sourceNum])
         return
